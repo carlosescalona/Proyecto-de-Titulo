@@ -1,0 +1,54 @@
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 20px; 
+    background: #181825; 
+    color: #cdd6f4; 
+}
+
+h1, h2 { 
+    color: #89b4fa; 
+}
+
+table { 
+    border-collapse: collapse; 
+    width: 100%; 
+    background: #313244; 
+    margin-bottom: 25px; 
+}
+
+th, td { 
+    border: 1px solid #45475a; 
+    padding: 10px; 
+    text-align: left; 
+}
+
+th { 
+    background: #11111b; 
+}
+
+.badge { 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    font-size: 0.85em; 
+}
+
+.ok { 
+    background: #a6e3a1; 
+    color: #11111b; 
+}
+
+.err { 
+    background: #f38ba8; 
+    color: #11111b; 
+}
+
+.warn { 
+    background: #f9e2af; 
+    color: #11111b; 
+}
+
+/* Estilo adicional para resaltar anomalías detectadas por JS */
+tr.alerta-activa {
+    background-color: rgba(243, 139, 168, 0.15);
+}
