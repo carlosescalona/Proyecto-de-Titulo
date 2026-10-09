@@ -38,7 +38,7 @@ class DashboardController {
 
         // Obtener datos
         $dispositivos = $dispositivoModel->obtenerTodos();
-        $telemetria   = $dispositivoModel->obtenerUltimaTelemetria(10); // <-- ESTA LÍNEA ES NECESARIA
+        $telemetria   = $dispositivoModel->obtenerUltimaTelemetria(10);
         $camaras      = $camaraModel->obtenerTodas();
         $eventos      = $eventoModel->obtenerUltimos(10);
 
