@@ -1,3 +1,24 @@
+/*  	 																															
+!IniHeaderDoc
+*****************************************************************************
+!NombreObjeto     : DispositivoModel.php
+!Sistema          : Proyecto de Monitoreo
+!Descripcion      : Monitoreo de dispositivos y cámaras a través de API
+!Plataforma       : !BaseDatosMysql
+!Uso              : 
+!Autor            : Carlos Escalona
+!Creacion         : 09/10/2026
+!Retornos/Salidas : NA
+!OrigenReq        : NA
+=============================================================================
+!ControlCambio
+--------------
+!cVersion !cFecha       !cProgramador        !cDescripcion 
+-----------------------------------------------------------------------------
+*****************************************************************************
+!EndHeaderDoc 
+*/
+
 <?php
 class DispositivoModel {
     private $conn;
