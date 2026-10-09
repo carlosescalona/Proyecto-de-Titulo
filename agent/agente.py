@@ -11,7 +11,6 @@ from camaras import comprobar_y_enviar_camaras
 # ==========================================
 # DISPOSITIVO_ID = "PC-001"
 DISPOSITIVO_ID = socket.gethostname().upper()
-
 API_URL = "http://localhost/titulo/api.php"
 
 
