@@ -17,7 +17,7 @@ CAMARAS_CONFIG = [
         "camara_id": "CAM-001",
         "nombre": "Cámara Pc-001",
         "ip": "127.0.0.1",
-        "fuente": 0,  # Cambia a una ruta no válida como "rtsp://invalid" para probar la falla
+        "fuente": "imagen_prueba.jpg",  # Cambia a imagen_prueba.jpg para probar la falla
         "ubicacion": "Oficina Central"
     }   
 ]
