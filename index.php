@@ -55,5 +55,9 @@ $accion = $_GET['accion'] ?? 'dashboard';
     default:
         (new DashboardController())->index();
         break;
+
+    case 'vaciar_todo':
+        (new DashboardController())->vaciarTodo(); // o EventoController según corresponda
+        break;   
 }
 ?>
