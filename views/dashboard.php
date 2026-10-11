@@ -11,12 +11,12 @@
 <body>
 
     <!-- NAV CON ENLACES A MANTENEDORES -->
-   <nav style="margin-bottom: 20px; background: #1e1e2e; padding: 10px 15px; border-radius: 6px;">
-    <a href="index.php" style="color: #89b4fa; font-weight: bold; margin-right: 20px; text-decoration: none;">📊 Dashboard</a>
-    <a href="index.php?accion=mantenedor_dispositivos" style="color: #cdd6f4; font-weight: bold; margin-right: 20px; text-decoration: none;">💻 Mantenedor Dispositivos</a>
-    <a href="index.php?accion=mantenedor_camaras" style="color: #cdd6f4; font-weight: bold; margin-right: 20px; text-decoration: none;">📷 Mantenedor Cámaras</a>
-    <a href="index.php?accion=mantenedor_eventos" style="color: #cdd6f4; font-weight: bold; text-decoration: none;">🔔 Mantenedor Eventos</a>
-</nav>
+   <nav class="main-nav">
+    <a href="index.php" class="nav-link active">📊 Dashboard</a>
+    <a href="index.php?accion=mantenedor_dispositivos" class="nav-link">💻 Mantenedor Dispositivos</a>
+    <a href="index.php?accion=mantenedor_camaras" class="nav-link">📷 Mantenedor Cámaras</a>
+    <a href="index.php?accion=mantenedor_eventos" class="nav-link">🔔 Mantenedor Eventos</a>
+    </nav>
 
     <h1>Panel Integral de Monitoreo (MVC)</h1>
 
@@ -107,13 +107,24 @@
     <h2>Eventos / Alertas</h2>
     <table>
         <thead>
-            <tr><th>Fecha</th><th>Origen</th><th>Tipo</th><th>Descripción</th></tr>
+            <tr>
+                <th>Fecha</th>
+                <th>Origen</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+            </tr>
         </thead>
         <tbody>
             <?php while($e = $eventos->fetch_assoc()): ?>
             <tr>
                 <td><?= $e['fecha'] ?></td>
-                <td><?= htmlspecialchars($e['camara_id'] ?? $e['dispositivo_id'] ?? 'N/A') ?></td>
+                <td>
+                    <?php 
+                        // Lee 'origen_id' (del UNION) y cae a las claves antiguas de respaldo
+                        $origen = $e['origen_id'] ?? $e['camara_id'] ?? $e['dispositivo_id'] ?? 'N/A';
+                    ?>
+                    <?= htmlspecialchars($origen) ?>
+                </td>
                 <td><span class="badge warn"><?= htmlspecialchars($e['tipo_evento']) ?></span></td>
                 <td><?= htmlspecialchars($e['descripcion']) ?></td>
             </tr>
