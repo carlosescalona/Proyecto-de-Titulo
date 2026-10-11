@@ -62,23 +62,22 @@ class ApiController {
             $this->dispositivoModel->guardarTelemetria($id, $cpu, $memoria, $fecha);
             $this->dispositivoModel->marcarDesconectados(15);
 
-            echo json_encode(["status" => "ok", "mensaje" => "Telemetría recibida"]);
+            echo json_encode(["status" => "ok", "mensaje" => "Telemetría recibida desde api controller"]);
 
-        } elseif ($accion === 'camaras') {
-            $id = $data['camara_id'];
-            $nombre = $data['nombre'] ?? ("Cámara " . $id);
-            $ip = $data['ip'] ?? "127.0.0.1";
+        }  } elseif ($accion === 'camaras') {
+            $id        = $data['camara_id'];
+            $nombre    = $data['nombre'] ?? ("Cámara " . $id);
+            $ipRtsp    = $data['ip_rtsp'] ?? $data['ip'] ?? "127.0.0.1";
             $ubicacion = $data['ubicacion'] ?? "Sin ubicación";
-            $estado = $data['estado'] ?? "Operativa";
-            $detalle = $data['detalle'] ?? "";
+            $estado    = $data['estado'] ?? "Operativa";
+            $detalle   = $data['detalle'] ?? "";
 
             $estadoAnterior = $this->camaraModel->obtenerEstadoPrevio($id);
-            $this->camaraModel->registrarOActualizar($id, $nombre, $ip, $ubicacion, $estado);
+            $this->camaraModel->registrarOActualizar($id, $nombre, $ipRtsp, $ubicacion, $estado);
 
-            // Registrar evento solo cuando cambie de estado a una condición anómala
+            // Registrar evento en eventos_camaras solo cuando cambia a un estado anómalo
             if ($estado !== 'Operativa' && $estadoAnterior !== $estado) {
                 
-                // Mapeo dinámico del tipo de evento según el estado/detalle
                 if ($estado === 'Sin imagen') {
                     $tipoEvento = 'PERDIDA_IMAGEN';
                 } elseif ($estado === 'Sin conexión') {
@@ -90,14 +89,13 @@ class ApiController {
                 }
 
                 $desc = "Alerta en cámara $id ($nombre): $detalle";
-                $this->eventoModel->registrarEvento($id, $tipoEvento, $desc);
+                
+                // --- LLAMADA AL NUEVO MÉTODO DEDICADO ---
+                $this->eventoModel->registrarEventoCamara($id, $tipoEvento, $desc);
             }
 
-            echo json_encode(["status" => "ok", "mensaje" => "Estado de cámara procesado"]);
-        } else {
-            http_response_code(400);
-            echo json_encode(["status" => "error", "mensaje" => "Acción no válida"]);
+            echo json_encode(["status" => "ok", "mensaje" => "Estado de cámara procesado desde api controller"]);
         }
     }
-}
+
 ?>
