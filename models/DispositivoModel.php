@@ -1,24 +1,3 @@
-/*  	 																															
-!IniHeaderDoc
-*****************************************************************************
-!NombreObjeto     : DispositivoModel.php
-!Sistema          : Proyecto de Monitoreo
-!Descripcion      : Monitoreo de dispositivos y cámaras a través de API
-!Plataforma       : !BaseDatosMysql
-!Uso              : 
-!Autor            : Carlos Escalona
-!Creacion         : 09/10/2026
-!Retornos/Salidas : NA
-!OrigenReq        : NA
-=============================================================================
-!ControlCambio
---------------
-!cVersion !cFecha       !cProgramador        !cDescripcion 
------------------------------------------------------------------------------
-*****************************************************************************
-!EndHeaderDoc 
-*/
-
 <?php
 class DispositivoModel {
     private $conn;
@@ -28,13 +7,19 @@ class DispositivoModel {
     }
 
     public function registrarOActualizar($id, $fecha) {
-        $stmt = $this->conn->prepare("INSERT INTO dispositivos (dispositivo_id, nombre, tipo, ubicacion, estado, ultima_conexion) 
-            VALUES (?, ?, 'Agente Monitoreo', 'Oficina Central', 'Activo', ?) 
-            ON DUPLICATE KEY UPDATE ultima_conexion = ?, estado = 'Activo'");
-        $nombre = "Equipo " . $id;
-        $stmt->bind_param("ssss", $id, $nombre, $fecha, $fecha);
-        return $stmt->execute();
-    }
+    // Si no existe, insertamos con un nombre por defecto para cumplir la restricción NOT NULL
+    $sql = "INSERT INTO dispositivos (dispositivo_id, nombre, estado, ultima_conexion) 
+            VALUES (?, ?, 'Activo', ?) 
+            ON DUPLICATE KEY UPDATE 
+                estado = 'Activo', 
+                ultima_conexion = ?";
+                
+    $nombrePorDefecto = "PC " . $id;
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("ssss", $id, $nombrePorDefecto, $fecha, $fecha);
+    return $stmt->execute();
+}
 
     public function guardarTelemetria($id, $cpu, $memoria, $fecha) {
         $stmt = $this->conn->prepare("INSERT INTO telemetria (dispositivo_id, cpu, memoria, fecha) VALUES (?, ?, ?, ?)");
