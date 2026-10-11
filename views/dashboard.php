@@ -210,7 +210,7 @@ function ejecutarAgente() {
     .then(data => {
         if (data.status === 'ok') {
             estado.style.color = '#a6e3a1';
-            estado.innerText = '✅ ' + data.mensaje + ' Recargando página...';
+            estado.innerText = '✅' + data.mensaje + ' Recargando página...';
             
             // Espera 1.5 segundos y recarga la página para mostrar los nuevos eventos
             setTimeout(() => {
