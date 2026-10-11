@@ -1,0 +1,11 @@
+PASO 1 Instalar libreria en terminal de python
+
+C:\xampp\htdocs\Proyecto-de-Titulo> pip install pyinstaller
+
+PASO 2 CON POWER SHEL EJECUTAR
+
+C:\xampp\htdocs\Proyecto-de-Titulo\agent> pyinstaller --onefile agent/agente.py
+
+EJECUTABLE SE ALMACENA EN LA SIGUIENTE RUTA CON EL NOMBRE agente.exe
+C:\xampp\htdocs\Proyecto-de-Titulo\agent\dist
+
