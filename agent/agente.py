@@ -1,23 +1,22 @@
 import time
 import psutil
-import socket
 from datetime import datetime
-# Importaciones desde el módulo agent (o locales si están en la misma carpeta)
 from heartbeat import enviar_heartbeat
 from camaras import comprobar_y_enviar_camaras
 
-# ==========================================
-# CONFIGURACIÓN GENERAL (Al inicio del script)
-# ==========================================
-# DISPOSITIVO_ID = "PC-001"
-DISPOSITIVO_ID = socket.gethostname().upper()
+# 1. Definimos la lista de dispositivos a monitorear
+DISPOSITIVOS = [
+    {"id": "PC-001", "ip": "127.0.0.1"}
+]
+
 API_URL = "http://localhost/titulo/api.php"
 
-
-def obtener_metricas():
+def obtener_metricas(dispositivo_id):
+    # Nota: psutil.cpu_percent() toma las métricas del equipo local.
+    # Si monitoreas otros equipos por red, deberías consultar su API/SNMP correspondiente.
     return {
-        "dispositivo_id": DISPOSITIVO_ID,
-        "cpu": psutil.cpu_percent(interval=1),  # Pausa de 1 segundo para medir la CPU
+        "dispositivo_id": dispositivo_id,
+        "cpu": psutil.cpu_percent(interval=1),
         "memoria": psutil.virtual_memory().percent,
         "fecha": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
@@ -28,12 +27,17 @@ def obtener_metricas():
 while True:
     print("\n--- Ejecutando ciclo de monitoreo ---")
 
-    # 1. Monitoreo de Host / Agente
-    metricas = obtener_metricas()
-    enviar_heartbeat(metricas)
+    # Recorremos cada dispositivo de la lista
+    for disp in DISPOSITIVOS:
+        dispositivo_id = disp["id"]
+        print(f"Enviando telemetría para: {dispositivo_id}")
+        
+        metricas = obtener_metricas(dispositivo_id)
+        enviar_heartbeat(metricas)
 
-    # 2. Comprobación periódica de cámaras
+    # Comprobación de cámaras
     comprobar_y_enviar_camaras()
 
-    # 3. Pausa entre ciclos
+    # Pausa entre ciclos completos
     time.sleep(1)
+   
