@@ -79,7 +79,9 @@
                     <td><span class="badge warn"><?= htmlspecialchars($e['tipo_evento']) ?></span></td>
                     <td><?= htmlspecialchars($e['descripcion']) ?></td>
                     <td>
-                        <a href="index.php?accion=eliminar_evento&id=<?= $e['id'] ?>" onclick="return confirm('¿Eliminar esta alerta?');" style="color:#f38ba8;">Eliminar</a>
+                       <a href="index.php?accion=eliminar_evento&id=<?= $e['id'] ?>&origen_tipo=<?= $e['origen_tipo'] ?>" onclick="return confirm('¿Seguro que deseas eliminar este evento?');">
+   🗑️ Eliminar
+</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>
