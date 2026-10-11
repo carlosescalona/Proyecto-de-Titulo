@@ -6,7 +6,7 @@ CONTADOR_CONGELAMIENTO = {}
 
 # Configuración mejorada
 UMBRAL_DIFERENCIA = 0.8   # Ajustado para tolerar variaciones mínimas de sensor
-UMBRAL_REPETICIONES = 3   # Requiere 3 ciclos consecutivos sin cambios para alertar
+UMBRAL_REPETICIONES = 1  # Requiere 1 ciclos consecutivos sin cambios para alertar
 
 def evaluar_congelamiento(camara_id, frame_actual):
     global HISTORIAL_FRAMES, CONTADOR_CONGELAMIENTO
