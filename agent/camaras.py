@@ -2,34 +2,60 @@ import cv2
 import requests
 import time
 from datetime import datetime
+from config import API_URL  # Usamos la constante centralizada
 from analizador_congelamiento import evaluar_congelamiento
-
-API_URL = "http://localhost/titulo/api.php"
 
 # Diccionario para controlar el tiempo desde que una cámara empezó a fallar
 fallas_inicio = {}
 
-# Configuración con tiempo límite en segundos para declarar "Sin imagen"
-TIMEOUT_SIN_IMAGEN = 1 # Segundos tolerados antes de declarar "Sin imagen"
+# Diccionario para mantener abiertas las conexiones de cámaras/webcams
+capturas_activas = {}
+
+TIMEOUT_SIN_IMAGEN = 1  # Segundos tolerados antes de declarar "Sin imagen"
 
 CAMARAS_CONFIG = [
     {
         "camara_id": "CAM-001",
         "nombre": "Cámara Pc-001",
         "ip": "127.0.0.1",
-        "fuente": "imagen_prueba.jpg",  # Cambia a imagen_prueba.jpg para probar la falla
+        "fuente": "imagen_prueba.jpg",
+        "ubicacion": "Imagen de prueba"
+    },
+    {
+        "camara_id": "CAM-002",
+        "nombre": "Cámara Pc-002",
+        "ip": "127.0.0.1",
+        "fuente": 0,  # 0 para Webcam local o URL RTSP
         "ubicacion": "Oficina Central"
-    }   
+    }  
 ]
 
 def es_frame_valido(frame):
     """Verifica si la imagen existe y no es completamente negra / vacía"""
     if frame is None or frame.size == 0:
         return False
-    # Opcional: verificar si la imagen no es un frame totalmente negro
     if cv2.countNonZero(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)) == 0:
         return False
     return True
+
+def obtener_frame(cam_id, fuente):
+    """Obtiene el frame reutilizando la captura si es un dispositivo de video/webcam"""
+    if isinstance(fuente, str) and fuente.endswith(('.jpg', '.png', '.jpeg')):
+        frame = cv2.imread(fuente)
+        return frame is not None, frame
+    else:
+        if cam_id not in capturas_activas or not capturas_activas[cam_id].isOpened():
+            capturas_activas[cam_id] = cv2.VideoCapture(fuente)
+        
+        cap = capturas_activas[cam_id]
+        ret, frame = cap.read()
+        
+        # Si la cámara física se desconectó, liberamos para reintentar abrir en el próximo ciclo
+        if not ret:
+            cap.release()
+            capturas_activas.pop(cam_id, None)
+            
+        return ret, frame
 
 def comprobar_y_enviar_camaras():
     tiempo_actual = time.time()
@@ -39,18 +65,10 @@ def comprobar_y_enviar_camaras():
         fuente = cam["fuente"]
 
         # Intento de captura de frame
-        if isinstance(fuente, str) and fuente.endswith(('.jpg', '.png', '.jpeg')):
-            frame = cv2.imread(fuente)
-            ret = frame is not None
-        else:
-            cap = cv2.VideoCapture(fuente)
-            ret, frame = cap.read()
-            cap.release()
-
+        ret, frame = obtener_frame(cam_id, fuente)
         imagen_valida = ret and es_frame_valido(frame)
 
         if imagen_valida:
-            # Si recupera la imagen, reiniciamos el contador de falla
             if cam_id in fallas_inicio:
                 del fallas_inicio[cam_id]
 
@@ -59,7 +77,6 @@ def comprobar_y_enviar_camaras():
             detalle = f"Imagen congelada detectada. {msg}" if esta_congelada else msg
 
         else:
-            # Si no entrega imagen válida, medimos el tiempo de la falla
             if cam_id not in fallas_inicio:
                 fallas_inicio[cam_id] = tiempo_actual
 
@@ -69,7 +86,6 @@ def comprobar_y_enviar_camaras():
                 estado = "Sin imagen"
                 detalle = f"Pérdida de señal detectada. La cámara no entrega una imagen válida desde hace {int(tiempo_fallando)}s."
             else:
-                # Período de gracia antes de cumplir el timeout
                 estado = "Operativa" 
                 detalle = "Reintentando captura de imagen..."
 
@@ -86,16 +102,15 @@ def comprobar_y_enviar_camaras():
             }
         }
 
-    try:
-        res = requests.post(API_URL, json=payload, timeout=5)
-        # Lanza excepción si el código HTTP es 4xx o 5xx
-        res.raise_for_status()
-
-        # Verificar si el servidor devolvió un JSON válido
+        # --- ENVÍO DENTRO DEL BUCLE FOR ---
         try:
-            data = res.json()
-            print(f" -> Estado cámara {cam_id} [{estado}]: {data.get('mensaje')}")
-        except ValueError:
-            print(f"Error: La API no devolvió un JSON válido. Respuesta recibida:\n{res.text}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error de red/HTTP enviando estado de cámara {cam_id}: {e}")
+            res = requests.post(API_URL, json=payload, timeout=5)
+            res.raise_for_status()
+
+            try:
+                data = res.json()
+                print(f" -> Estado cámara {cam_id} [{estado}]: {data.get('mensaje')}")
+            except ValueError:
+                print(f"Error: La API no devolvió un JSON válido para {cam_id}. Respuesta recibida:\n{res.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error de red/HTTP enviando estado de cámara {cam_id}: {e}")
