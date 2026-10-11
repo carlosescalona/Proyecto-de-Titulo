@@ -68,7 +68,9 @@
             </tr>
         </thead>
         <tbody>
-            <?php if ($eventos && $eventos->num_rows > 0): ?>
+            <?php if ($eventos && $eventos->num_rows > 0): 
+                ?>
+
                 <?php while($e = $eventos->fetch_assoc()): ?>
                 <tr>
                     <td><?= $e['id'] ?></td>
