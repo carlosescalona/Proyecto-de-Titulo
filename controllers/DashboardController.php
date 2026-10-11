@@ -5,23 +5,31 @@ require_once 'models/CamaraModel.php';
 require_once 'models/EventoModel.php';
 
 class DashboardController {
-    public function index() {
+    private $db;
+    private $dispositivoModel;
+    private $camaraModel;
+    private $eventoModel;
+
+    // Inicializamos la conexión y los modelos en el constructor
+    public function __construct() {
         $database = new Database();
-        $db = $database->getConnection();
+        $this->db = $database->getConnection();
 
-        $dispositivoModel = new DispositivoModel($db);
-        $camaraModel = new CamaraModel($db);
-        $eventoModel = new EventoModel($db);
+        $this->dispositivoModel = new DispositivoModel($this->db);
+        $this->camaraModel      = new CamaraModel($this->db);
+        $this->eventoModel      = new EventoModel($this->db);
+    }
 
+    public function index() {
         // Verificar desconexiones antes de renderizar
-        $dispositivoModel->marcarDesconectados(15);
+        $this->dispositivoModel->marcarDesconectados(15);
 
-        // Obtener datos
-        $dispositivos = $dispositivoModel->obtenerTodos();
-        $telemetria   = $dispositivoModel->obtenerUltimaTelemetria(5);
-        $camaras      = $camaraModel->obtenerTodas();
-        $eventos      = $eventoModel->obtenerUltimos(5);
-   
+        // Obtener datos reutilizando las propiedades de la clase
+        $dispositivos = $this->dispositivoModel->obtenerTodos();
+        $telemetria   = $this->dispositivoModel->obtenerUltimaTelemetria(5);
+        $camaras      = $this->camaraModel->obtenerTodas();
+        $eventos      = $this->eventoModel->obtenerUltimos(5);
+
         require_once 'views/dashboard.php';
     }
 
@@ -30,7 +38,6 @@ class DashboardController {
         if (ob_get_length()) ob_clean();
         header('Content-Type: application/json');
 
-        // Según tu árbol, 'agente.py' o 'agente' está en la carpeta /agent
         $pythonScript = realpath(__DIR__ . '/../agent/agente.py');
 
         if (!$pythonScript || !file_exists($pythonScript)) {
@@ -41,19 +48,17 @@ class DashboardController {
         $os = strtoupper(substr(PHP_OS, 0, 3));
 
         if ($os === 'WIN') {
-            // Ejecución en segundo plano para Windows
             $comando = "start /B python \"" . $pythonScript . "\"";
             pclose(popen($comando, "r"));
             echo json_encode(["status" => "ok", "mensaje" => "Agente iniciado en segundo plano (Windows)."]);
         } else {
-            // Ejecución en segundo plano para Linux/Mac
             $comando = "python3 \"" . $pythonScript . "\" > /dev/null 2>&1 &";
             exec($comando);
             echo json_encode(["status" => "ok", "mensaje" => "Agente iniciado en segundo plano (Linux/Mac)."]);
         }
     }
 
-    // MÉTODO PARA DETENER EL AGENTE PYTHON
+    // MÉTODO PARA DETENER EL AGENTE PYTHON (Optimizado con taskkill)
     public function detenerAgente() {
         if (ob_get_length()) ob_clean();
         header('Content-Type: application/json');
@@ -61,23 +66,20 @@ class DashboardController {
         $os = strtoupper(substr(PHP_OS, 0, 3));
 
         if ($os === 'WIN') {
-            // En Windows finaliza los procesos python que ejecutan agente.py (usando wmic / taskkill)
-            $comando = 'wmic process where "name=\'python.exe\' and commandline like \'%agente.py%\'" call terminate';
-            exec($comando, $output, $returnVar);
-
-            // Fallback básico por si WMIC no está disponible en versiones recientes de Windows
-            if ($returnVar !== 0) {
-                exec('taskkill /F /IM python.exe 2>&1');
-            }
-
+            // taskkill rápido e instantáneo
+            pclose(popen("start /B taskkill /F /FI \"IMAGENAME eq python*\" /T", "r"));
             echo json_encode(["status" => "ok", "mensaje" => "Proceso del agente detenido en Windows."]);
         } else {
-            // En Linux / Mac mata los procesos python3 asociados a agente.py
-            $comando = "pkill -f agent/agente.py 2>&1";
-            exec($comando);
-
+            exec("pkill -9 -f agent/agente.py > /dev/null 2>&1 &");
             echo json_encode(["status" => "ok", "mensaje" => "Proceso del agente detenido en Linux/Mac."]);
         }
+    }
+
+    // MÉTODO PARA VACIAR TODA LA BASE DE DATOS
+    public function vaciarTodo() {
+        $this->eventoModel->vaciarTodo();
+        header('Location: index.php?accion=dashboard');
+        exit;
     }
 }
 ?>
