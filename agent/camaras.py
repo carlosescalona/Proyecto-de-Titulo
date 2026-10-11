@@ -10,7 +10,7 @@ API_URL = "http://localhost/titulo/api.php"
 fallas_inicio = {}
 
 # Configuración con tiempo límite en segundos para declarar "Sin imagen"
-TIMEOUT_SIN_IMAGEN = 5  # Segundos tolerados antes de declarar "Sin imagen"
+TIMEOUT_SIN_IMAGEN = 1 # Segundos tolerados antes de declarar "Sin imagen"
 
 CAMARAS_CONFIG = [
     {
@@ -86,9 +86,16 @@ def comprobar_y_enviar_camaras():
             }
         }
 
+    try:
+        res = requests.post(API_URL, json=payload, timeout=5)
+        # Lanza excepción si el código HTTP es 4xx o 5xx
+        res.raise_for_status()
+
+        # Verificar si el servidor devolvió un JSON válido
         try:
-            res = requests.post(API_URL, json=payload, timeout=5)
-            res.raise_for_status()
-            print(f" -> Estado cámara {cam_id} [{estado}]: {res.json().get('mensaje')}")
-        except Exception as e:
-            print(f"Error enviando estado de cámara {cam_id}: {e}")
+            data = res.json()
+            print(f" -> Estado cámara {cam_id} [{estado}]: {data.get('mensaje')}")
+        except ValueError:
+            print(f"Error: La API no devolvió un JSON válido. Respuesta recibida:\n{res.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error de red/HTTP enviando estado de cámara {cam_id}: {e}")
