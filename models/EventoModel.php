@@ -20,64 +20,39 @@
 */
 
 <?php
-// models/EventoModel.php
-
 class EventoModel {
-    private $conn;
+    private $db;
 
     public function __construct($db) {
-        $this->conn = $db;
+        $this->db = $db;
     }
 
-    public function registrarEvento($origenId, $tipoEvento, $descripcion) {
-        $stmt = $this->conn->prepare("INSERT INTO eventos (dispositivo_id, tipo_evento, descripcion, fecha) VALUES (?, ?, ?, NOW())");
-        $stmt->bind_param("sss", $origenId, $tipoEvento, $descripcion);
+    // Guardar en la tabla 'eventos_camaras'
+    public function registrarEventoCamara($camaraId, $tipoEvento, $descripcion) {
+        $sql = "INSERT INTO eventos_camaras (camara_id, tipo_evento, descripcion, fecha) 
+                VALUES (?, ?, ?, NOW())";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Error preparando consulta eventos_camaras: " . $this->db->error);
+        }
+
+        $stmt->bind_param("sss", $camaraId, $tipoEvento, $descripcion);
         return $stmt->execute();
     }
 
-    public function obtenerUltimos($limite = 10) {
-        return $this->conn->query("SELECT * FROM eventos ORDER BY fecha DESC LIMIT $limite");
-    }
+    // Guardar en la tabla 'eventos_dispositivos'
+    public function registrarEventoDispositivo($dispositivoId, $tipoEvento, $descripcion) {
+        $sql = "INSERT INTO eventos_dispositivos (dispositivo_id, tipo_evento, descripcion, fecha) 
+                VALUES (?, ?, ?, NOW())";
 
-    public function obtenerTodosConFiltro($tipo = '', $desde = '', $hasta = '') {
-        $sql = "SELECT * FROM eventos WHERE 1=1";
-        $params = [];
-        $types = "";
-
-        if (!empty($tipo)) {
-            $sql .= " AND tipo_evento = ?";
-            $params[] = $tipo;
-            $types .= "s";
-        }
-        if (!empty($desde)) {
-            $sql .= " AND fecha >= ?";
-            $params[] = $desde . " 00:00:00";
-            $types .= "s";
-        }
-        if (!empty($hasta)) {
-            $sql .= " AND fecha <= ?";
-            $params[] = $hasta . " 23:59:59";
-            $types .= "s";
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Error preparando consulta eventos_dispositivos: " . $this->db->error);
         }
 
-        $sql .= " ORDER BY fecha DESC";
-        
-        $stmt = $this->conn->prepare($sql);
-        if (!empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
-        $stmt->execute();
-        return $stmt->get_result();
-    }
-
-    public function eliminar($id) {
-        $stmt = $this->conn->prepare("DELETE FROM eventos WHERE id = ?");
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("sss", $dispositivoId, $tipoEvento, $descripcion);
         return $stmt->execute();
-    }
-
-    public function limpiarHistorial() {
-        return $this->conn->query("TRUNCATE TABLE eventos");
     }
 }
 ?>
