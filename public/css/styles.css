@@ -85,3 +85,34 @@ tr.alerta-activa {
 .nav-link:hover {
     color: #89b4fa;
 }
+
+.btn-agente {
+        background-color: #89b4fa;
+        color: #11111b;
+        border: none;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .btn-agente:hover { background-color: #b4befe; }
+
+    .btn-detener {
+        background-color: #f38ba8;
+        color: #11111b;
+        border: none;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .btn-detener:hover { background-color: #f5e0dc; }
+
+    .btn-agente:disabled, .btn-detener:disabled {
+        background-color: #6c7086;
+        cursor: not-allowed;
+    }
