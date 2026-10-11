@@ -46,7 +46,7 @@ class DispositivoModel {
         return $this->conn->query("SELECT * FROM dispositivos ORDER BY ultima_conexion DESC");
     }
 
-    public function marcarDesconectados($timeoutSegundos = 15) {
+    public function marcarDesconectados($timeoutSegundos =5) {
         $sql = "UPDATE dispositivos 
                 SET estado = 'Sin conexión' 
                 WHERE estado != 'Sin conexión' 
@@ -56,7 +56,7 @@ class DispositivoModel {
         return $stmt->execute();
     }
 
-    public function obtenerUltimaTelemetria($limite = 10) {
+    public function obtenerUltimaTelemetria($limite = 5) {
     $sql = "SELECT t.dispositivo_id, d.nombre, t.cpu, t.memoria, t.fecha 
             FROM telemetria t 
             LEFT JOIN dispositivos d ON t.dispositivo_id = d.dispositivo_id 
