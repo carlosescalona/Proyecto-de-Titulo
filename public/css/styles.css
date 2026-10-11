@@ -52,3 +52,36 @@ th {
 tr.alerta-activa {
     background-color: rgba(243, 139, 168, 0.15);
 }
+
+/* Navigation Container */
+.main-nav {
+    margin-bottom: 20px;
+    background: #1e1e2e;
+    padding: 10px 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+}
+
+/* Base Nav Links */
+.nav-link {
+    color: #cdd6f4;
+    font-weight: bold;
+    margin-right: 20px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.nav-link:last-child {
+    margin-right: 0;
+}
+
+/* Active Nav Link (Dashboard) */
+.nav-link.active {
+    color: #89b4fa;
+}
+
+/* Hover Effect */
+.nav-link:hover {
+    color: #89b4fa;
+}
