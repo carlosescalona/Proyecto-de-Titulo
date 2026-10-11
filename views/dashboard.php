@@ -51,6 +51,29 @@
     </button>
 
     <span id="estado-agente" style="font-weight: bold; color: #a6adc8;"></span>
+
+    <a href="index.php?accion=vaciar_todo" 
+   class="btn-vaciar-todo"
+   onclick="return confirm('⚠️ ¡ATENCIÓN! Se borrarán TODOS los dispositivos, cámaras e historial de eventos. ¿Deseas continuar?');">
+   🗑️ Vaciar Toda la Base de Datos
+</a>
+
+<style>
+    .btn-vaciar-todo {
+        background-color: #f38ba8;
+        color: #11111b;
+        padding: 10px 18px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.2s ease;
+    }
+    .btn-vaciar-todo:hover {
+        background-color: #eba0ac;
+    }
+</style>
 </div>
 
     <h1>Panel Integral de Monitoreo (MVC)</h1>
