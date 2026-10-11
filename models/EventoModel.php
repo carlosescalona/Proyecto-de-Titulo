@@ -123,5 +123,51 @@ class EventoModel {
         $stmt->execute();
         return $stmt->get_result();
     }
+
+    // Eliminar un evento específico identificando si es de dispositivo o cámara
+public function eliminar($id, $tipoOrigen) {
+    if ($tipoOrigen === 'camara') {
+        $sql = "DELETE FROM eventos_camaras WHERE id = ?";
+    } else {
+        $sql = "DELETE FROM eventos_dispositivos WHERE id = ?";
+    }
+
+    $stmt = $this->db->prepare($sql);
+    if (!$stmt) {
+        throw new Exception("Error preparando eliminación de evento: " . $this->db->error);
+    }
+
+    $stmt->bind_param("i", $id);
+    return $stmt->execute();
+}
+
+// Vaciar todos los registros de ambas tablas de eventos
+public function vaciar() {
+    $sql1 = "TRUNCATE TABLE eventos_dispositivos";
+    $sql2 = "TRUNCATE TABLE eventos_camaras";
+
+    $res1 = $this->db->query($sql1);
+    $res2 = $this->db->query($sql2);
+
+    return ($res1 && $res2);
+}
+
+// Vaciar absolutamente todas las tablas del sistema
+public function vaciarTodo() {
+    // Desactivar temporalmente las claves foráneas por si existen relaciones
+    $this->db->query("SET FOREIGN_KEY_CHECKS = 0");
+
+    $res1 = $this->db->query("TRUNCATE TABLE eventos_dispositivos");
+    $res2 = $this->db->query("TRUNCATE TABLE eventos_camaras");
+    $res3 = $this->db->query("TRUNCATE TABLE dispositivos");
+    $res4 = $this->db->query("TRUNCATE TABLE camaras");
+    $res5 = $this->db->query("TRUNCATE TABLE telemetria");
+    
+
+    $this->db->query("SET FOREIGN_KEY_CHECKS = 1");
+
+    return ($res1 && $res2 && $res3 && $res4 && $res5);
+}
+
 }
 ?>
