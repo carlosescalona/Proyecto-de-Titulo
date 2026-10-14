@@ -15,18 +15,25 @@ TIMEOUT_SIN_IMAGEN = 1  # Segundos tolerados antes de declarar "Sin imagen"
 
 CAMARAS_CONFIG = [
     {
-        "camara_id": "CAM-001",
-        "nombre": "Cámara Pc-001",
+        "camara_id": "CAM-prueba",
+        "nombre": "Cámara prueba",
         "ip": "127.0.0.1",
         "fuente": "imagen_prueba.jpg",
         "ubicacion": "Imagen de prueba"
     },
     {
         "camara_id": "CAM-002",
-        "nombre": "Cámara Pc-002",
+        "nombre": "Cámara USB Secundaria",
         "ip": "127.0.0.1",
         "fuente": 0,  # 0 para Webcam local o URL RTSP
         "ubicacion": "Oficina Central"
+    },
+    {
+        "camara_id": "CAM-003",
+        "nombre": "Cámara Pc-001",
+        "ip": "127.0.0.1",
+        "fuente": 1,  # Índice 1: Segunda cámara conectada por USB
+        "ubicacion": "Recepción"
     }  
 ]
 
