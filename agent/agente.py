@@ -7,17 +7,19 @@ from datetime import datetime
 # 1. Silenciar advertencias de OpenCV antes de cualquier import de cámaras
 os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
 
-# 2. Activar modo Matrix (Fondo negro, letras verde brillante) en Windows
+# 2. Configurar la consola en Windows (0 = Fondo negro, A = Verde brillante)
 if os.name == 'nt':
     os.system('color 0A')
+
+# 3. Forzar salida en verde brillante para TODO lo que imprima Python (incluidos submódulos)
+VERDE_BRIGHT = "\033[1;32m"
+sys.stdout.write(VERDE_BRIGHT)
+sys.stderr.write(VERDE_BRIGHT)
+sys.stdout.flush()
 
 from config import DISPOSITIVOS
 from heartbeat import enviar_heartbeat
 from camaras import comprobar_y_enviar_camaras
-
-# Estilos de texto ANSI
-VERDE_BRIGHT = "\033[1;32m"
-RESET = "\033[0m"
 
 def obtener_metricas(dispositivo_id):
     # Obtener uso de disco en la partición principal
@@ -31,10 +33,10 @@ def obtener_metricas(dispositivo_id):
         "fecha": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
 
-print(f"{VERDE_BRIGHT}=== INICIANDO AGENTE MATRIX DE MONITOREO ==={RESET}")
+print("=== INICIANDO AGENTE MATRIX DE MONITOREO ===")
 
 while True:
-    print(f"\n{VERDE_BRIGHT}--- Ejecutando ciclo de monitoreo ---{RESET}")
+    print("\n--- Ejecutando ciclo de monitoreo ---")
 
     # 1. Monitoreo de PCs
     for pc in DISPOSITIVOS:
@@ -47,3 +49,4 @@ while True:
 
     # 3. Pausa entre ciclos completos
     time.sleep(2)
+    
